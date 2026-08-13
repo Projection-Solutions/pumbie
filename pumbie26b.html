@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy 26th Birthday, Pumbie!</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #0d0d1a;
+            background-image: radial-gradient(circle at center, #231238 0%, #0d0d1a 100%);
+            color: #fff;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Centered, crisp text container */
+        #birthdayContainer {
+            text-align: center;
+            position: relative;
+            z-index: 10;
+            width: 90%;
+            max-width: 800px;
+        }
+
+        /* Three glowing candles above the wish */
+        #candleHeader {
+            font-size: 5rem;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 0 20px rgba(255, 180, 50, 0.9));
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* Crisp text formatting */
+        #mainWish {
+            font-size: 4rem;
+            font-weight: bold;
+            margin: 10px 0;
+            color: #ffd700;
+            text-shadow: 0 0 25px rgba(255, 215, 0, 0.7);
+        }
+
+        #pumbieLine {
+            font-size: 3.2rem;
+            font-weight: bold;
+            margin: 10px 0;
+            color: #ff69b4;
+            text-shadow: 0 0 20px rgba(255, 105, 180, 0.8);
+        }
+
+        #subtitle {
+            font-size: 1.8rem;
+            font-style: italic;
+            color: #e0d0ff;
+            margin-top: 15px;
+            opacity: 0.9;
+        }
+
+        /* Floating motion for the candles */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Canvas for background oscillating particles */
+        canvas {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Floating Play/Pause Music Button */
+        #musicBtn {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            z-index: 100;
+            background: rgba(255, 215, 0, 0.2);
+            border: 2px solid #ffd700;
+            color: #ffffff;
+            padding: 12px 26px;
+            border-radius: 30px;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            font-size: 1.1rem;
+            font-weight: bold;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        #musicBtn:hover {
+            background: rgba(255, 215, 0, 0.4);
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Embedded audio tag pointing to your local song file -->
+    <audio id="cuppycakeAudio" src="cuppycake.mp3" loop></audio>
+
+    <!-- Single Play Button -->
+    <button id="musicBtn" onclick="toggleMusic()">🎵 Play Music</button>
+
+    <!-- Main Crisp Text Display -->
+    <div id="birthdayContainer">
+        <div id="candleHeader">🕯️ 🕯️ 🕯️</div>
+        <div id="mainWish">Happy 26th Birthday</div>
+        <div id="pumbieLine">Pumbie ❤️</div>
+        <div id="subtitle">"You're my Honeybunch, Sugarplum, Pumpy-umpy-umpkin..."</div>
+    </div>
+
+    <!-- Oscillating Background Particles -->
+    <canvas id="backgroundCanvas"></canvas>
+
+    <script>
+        // --- AUDIO CONTROLLER ---
+        const audio = document.getElementById('cuppycakeAudio');
+        const btn = document.getElementById('musicBtn');
+
+        function toggleMusic() {
+            if (audio.paused) {
+                audio.play().then(() => {
+                    btn.innerText = "⏸ Pause Music";
+                }).catch(err => {
+                    alert("Could not find 'cuppycake.mp3'. Please make sure the audio file is in the same folder as this HTML file!");
+                });
+            } else {
+                audio.pause();
+                btn.innerText = "🎵 Play Music";
+            }
+        }
+
+        // --- BACKGROUND PARTICLES ---
+        const canvas = document.getElementById('backgroundCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.baseSize = Math.random() * 3 + 1;
+                this.hue = Math.random() * 80 + 280; // Shifting pinks, purples, and golds
+                this.angle = Math.random() * Math.PI * 2;
+                this.speed = Math.random() * 0.03 + 0.01;
+                this.amplitude = Math.random() * 10 + 5;
+            }
+
+            update() {
+                this.angle += this.speed;
+                this.x += Math.cos(this.angle) * 0.5;
+                this.y += Math.sin(this.angle) * 0.5;
+                
+                // Wrap around screen
+                if (this.x < 0) this.x = canvas.width;
+                if (this.x > canvas.width) this.x = 0;
+                if (this.y < 0) this.y = canvas.height;
+                if (this.y > canvas.height) this.y = 0;
+
+                this.size = this.baseSize + Math.sin(this.angle) * 1.2;
+                this.opacity = 0.5 + Math.sin(this.angle) * 0.3;
+            }
+
+            draw() {
+                ctx.fillStyle = `hsla(${this.hue}, 100%, 75%, ${this.opacity})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, Math.abs(this.size), 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            particles = [];
+            const particleCount = Math.floor((canvas.width * canvas.height) / 3500);
+            for(let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+        animate();
+    </script>
+</body>
+</html>
